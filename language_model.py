@@ -18,18 +18,20 @@ def train_char_lm(fname, order=4, add_k=1):
     Each tuple consists of a possible net character and its probability.
   '''
 
-  # TODO: Add your implementation of add-k smoothing.
-
   data = open(fname).read()
   lm = defaultdict(Counter)
   pad = "~" * order
   data = pad + data
+  add_k = float(add_k)
+  possible_char = set()
   for i in range(len(data)-order):
     history, char = data[i:i+order], data[i+order]
     lm[history][char]+=1
+    possible_char.add(char)
   def normalize(counter):
-    s = float(sum(counter.values()))
-    return [(c,cnt/s) for c,cnt in counter.items()]
+    V = len(possible_char)
+    s = float(sum(counter.values())) + V*float(add_k)
+    return [(c, (counter[c]+add_k)/s) if c in counter else (c, add_k/s) for c in possible_char]
   outlm = {hist:normalize(chars) for hist, chars in lm.items()}
   return outlm
 
@@ -106,9 +108,8 @@ def calculate_prob_with_backoff(char, history, lms, lambdas):
     
   Returns:
     Probability of char appearing next in the sequence.
-  ''' 
-  # TODO: YOUR CODE HRE
-  pass
+  '''
+  return sum(lambdas(i)*lms(i)[history][char] for i in len(lambdas))
 
 
 def set_lambdas(lms, dev_filename):
@@ -123,8 +124,7 @@ def set_lambdas(lms, dev_filename):
   Returns:
     Probability of char appearing next in the sequence.
   '''
-  # TODO: YOUR CODE HERE
-  pass
+  return [1.0/len(lms) for i in len(lms)]
 
 if __name__ == '__main__':
   print('Training language model')
