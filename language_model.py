@@ -1,5 +1,6 @@
 from collections import *
 from random import random
+import math
 
 def train_char_lm(fname, order=4, add_k=1):
   ''' Trains a language model.
@@ -82,9 +83,16 @@ def perplexity(test_filename, lm, order=4):
   '''
   test = open(test_filename).read()
   pad = "~" * order
-  test = pad + data
-  
-  # TODO: YOUR CODE HRE
+  test = pad + test
+  log_sum = 0
+  N = 0
+  for i in range(len(test)-order):
+    history, char = test[i:i+order], test[i+order]
+    log_sum += float(1)/math.log(lm[history][char])
+    N+=1
+
+  return math.exp(log_sum)**(1.0/N)
+
 
 def calculate_prob_with_backoff(char, history, lms, lambdas):
   '''Uses interpolation to compute the probability of char given a series of 
