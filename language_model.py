@@ -143,7 +143,7 @@ def set_lambdas(lms, dev_filename):
     Probability of char appearing next in the sequence.
   '''
   lambdas_init = [1.0/len(lms) for i in range(len(lms))]
-  perplexities = [perplexity(dev_filename, lms[i], i+1) for i in range(len(lms))]
+  #perplexities = [perplexity(dev_filename, lms[i], i+1) for i in range(len(lms))]
 
   lambdas = lambdas_init
   return lambdas
@@ -154,9 +154,10 @@ if __name__ == '__main__':
     print(generate_text(lm, 2))
     train_dir = 'train'
     models = []
+    order_max = 3
     for fname in os.listdir(train_dir):
-        #testing out k = 0.5 and orders of 1 through 4
-        lms_temp = [train_char_lm(train_dir + '/' + fname, order=i, add_k=0.5) for i in range(1,5)]
+        #testing out k = 0.05 and orders of 1 through 3
+        lms_temp = [train_char_lm(train_dir + '/' + fname, order=i, add_k=0.05) for i in range(1,order_max+1)]
         models.append((fname[:-4], lms_temp))
     output = open('labels.txt', 'w')
     with open('cities_test.txt') as f:
@@ -164,9 +165,9 @@ if __name__ == '__main__':
             results = []
             for model in models:
                 log_prob = 0
-                for i in range(len(line) - 4):
-                    history, char = line[i:i + 4], line[i + 4]
+                for i in range(len(line) - order_max):
+                    history, char = line[i:i + order_max], line[i + order_max]
                     log_prob += math.log(calculate_prob_with_backoff(char, history, model[1], set_lambdas(model[1], 'val/af.txt')))
                 results.append((model[0], log_prob))
             best = max(results, key=itemgetter(1))
-            output.write(best[0])
+            output.write(best[0] + '\n')
