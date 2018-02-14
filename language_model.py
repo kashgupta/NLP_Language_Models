@@ -141,8 +141,8 @@ def set_lambdas(lms, dev_filename):
   Returns:
     Probability of char appearing next in the sequence.
   '''
-  lambdas_init = [1.0/len(lms) for i in len(lms)]
-  perplexities = [perplexity(dev_filename, lm, len(lm.items()[0])) for lm in lms]
+  lambdas_init = [1.0/len(lms) for i in range(len(lms))]
+  perplexities = [perplexity(dev_filename, lms[i], i+1) for i in range(len(lms))]
 
   lambdas = lambdas_init
   return lambdas
