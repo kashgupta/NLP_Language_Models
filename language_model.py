@@ -56,7 +56,7 @@ def generate_letter(lm, history, order):
   else:
     dist = lm['<UNK>']
   x = random()
-  for c,v in dist:
+  for c,v in dist.items():
     x = x - v
     if x <= 0: return c
     
@@ -126,7 +126,8 @@ def calculate_prob_with_backoff(char, history, lms, lambdas):
     Probability of char appearing next in the sequence.
   '''
   histories = [history[-(i+1):] for i in range(len(lms))]
-  return sum(lambdas[i]*lms[i][histories[i]][char] for i in range(len(lambdas)))
+  contains = [histories[i] in lms[i] for i in range(len(lms))]
+  return sum(lambdas[i]*lms[i][histories[i]][char] if contains[i] else lambdas[i]*lms[i]['<UNK>'][char] for i in range(len(lambdas)))
 
 
 def set_lambdas(lms, dev_filename):
@@ -167,5 +168,5 @@ if __name__ == '__main__':
                     history, char = line[i:i + 4], line[i + 4]
                     log_prob += math.log(calculate_prob_with_backoff(char, history, model[1], set_lambdas(model[1], 'val/af.txt')))
                 results.append((model[0], log_prob))
-            best = max(results, key=itemgetter(1), reverse=True)
-            output.write(best)
+            best = max(results, key=itemgetter(1))
+            output.write(best[0])
