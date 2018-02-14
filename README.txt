@@ -1,0 +1,2 @@
+The script for generating labels was written in the __main__ function so the language_model.py script can just be run as is in the terminal. It will output to labels.txt by itself with k=0.05 and orders of 1, 2 and 3. 
+In the language_models.py file, to change paramaters in the __main__ function, simply navigate to the variables add_k and order_max in order to change the order of the LMs or the add_k. This is how we tested our function when we wanted to output the labels. Otherwise, we wrote scripts to test on perplexity and try to find values that minimize it.
